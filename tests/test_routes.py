@@ -132,5 +132,11 @@ class TestAccountService(TestCase):
 
     def test_read_account(self):
         """tests given an id, read an account"""
-        
+        account = Account.create()
+        account2 = Account.read(account.id)
+        self.assertEqual(account2.name, account.name)
+        self.assertEqual(account2.email, account.email)
+        self.assertEqual(account2.address, account.address)
+        self.assertEqual(account2.phone_number, account.phone_number)
+        self.assertEqual(str(account2.date_joined), str(account.date_joined))
 
