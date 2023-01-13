@@ -126,17 +126,28 @@ class TestAccountService(TestCase):
     # ADD YOUR TEST CASES HERE ...
     def test_list_accounts(self):
         """Accounts should not return 404, should return array of accounts (even empty array)"""
-        response = Account.all()
+        response = self.client.get(BASE_URL)
         self.assertEqual(status.HTTP_200_OK, response.status_code)
         self.assertEqual(0, len(response.get_json()))
 
     def test_read_account(self):
         """tests given an id, read an account"""
-        account = Account.create()
-        account2 = Account.read(account.id)
-        self.assertEqual(account2.name, account.name)
-        self.assertEqual(account2.email, account.email)
-        self.assertEqual(account2.address, account.address)
-        self.assertEqual(account2.phone_number, account.phone_number)
-        self.assertEqual(str(account2.date_joined), str(account.date_joined))
+        account = AccountFactory()
+        response = self.client.post(
+            BASE_URL,
+            json=account.serialize(),
+            content_type="application/json"
+        )
 
+        account2 = self.client.get(BASE_URL+"/"+str(response.get_json()["id"]),
+            json = account.serialize(), 
+            content_type = "application/json"
+            ).get_json()
+
+        self.assertEqual(account2["name"], account.name)
+        self.assertEqual(account2["email"], account.email)
+        self.assertEqual(account2["address"], account.address)
+        self.assertEqual(account2["phone_number"], account.phone_number)
+        self.assertEqual(str(account2["date_joined"]), str(account.date_joined))
+
+    
