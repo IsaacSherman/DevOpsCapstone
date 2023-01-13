@@ -126,9 +126,11 @@ class TestAccountService(TestCase):
     # ADD YOUR TEST CASES HERE ...
     def test_list_accounts(self):
         """Accounts should not return 404, should return array of accounts (even empty array)"""
-        account = AccountFactory()
-        response = self.client.get(
-            BASE_URL
-        )
-        self.assertEqual(0, len(response.first))
+        response = Account.all()
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
+        self.assertEqual(0, len(response.get_json()))
+
+    def test_read_account(self):
+        """tests given an id, read an account"""
         
+
