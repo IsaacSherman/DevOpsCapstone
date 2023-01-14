@@ -144,13 +144,17 @@ class TestAccountService(TestCase):
         
         self.assertNotEqual(status.HTTP_404_NOT_FOUND, response2.status_code)
         account_json = response2.get_json()
-        self.compare_account_and_dict(account2, account_json)
+        print(account_json)
+        self.compare_account_and_dict(account2, account_json[0])
 
     def test_delete(self):
         """tests idempotence and whether the count of the accounts decremented by 1"""
+
         (account1, response1) = self.create_mock_account()
+        stuff = self.client.get(BASE_URL).get_json()
+        print(stuff)
         initial_length = len(
-            self.client.get(BASE_URL).get_json()
+            stuff[0]
         )
         id = response1.get_json()["id"]
         self.client.delete(BASE_URL + "/" + str(id))

@@ -88,7 +88,8 @@ def read_account(account_id):
         status_code = status.HTTP_404_NOT_FOUND
     else:
         status_code = status.HTTP_200_OK
-    return make_response(account.serialize(), status_code)
+    logger.log(1, jsonify(account.serialize()))
+    return make_response(jsonify(account.serialize()), status_code)
 
     
 
@@ -98,15 +99,28 @@ def read_account(account_id):
 ######################################################################
 
 # ... place you code here to UPDATE an account ...
-
+@app.route("/accounts/<account_id>", methods=["POST"])
+def update_account(account_id):
+    app.logger.info("Request to update an Account")
+    check_content_type("application/json")
+    account = Account.find(account_id)
+    if account is None:
+        return make_response("", status.HTTP_404_NOT_FOUND)
+    account.deserialize(request.get_json())
+    account.update()
+    return make_response (jsonify(account.serialize(), status.HTTP_200_OK))
 
 ######################################################################
 # DELETE AN ACCOUNT
 ######################################################################
 
 # ... place you code here to DELETE an account ...
-
-
+@app.route("/accounts/<account_id>", methods=["DELETE"])
+def delete_account(account_id):
+    account = Account.find(account_id)
+    if account is not None: 
+        account.delete()
+    return make_response("", status.HTTP_204_NO_CONTENT)
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
 ######################################################################
