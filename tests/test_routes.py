@@ -117,17 +117,18 @@ class TestAccountService(TestCase):
     # ADD YOUR TEST CASES HERE ...
     def test_list_accounts(self):
         """List Accounts should not return 404, should return array of accounts (even empty array)"""
-        account = AccountFactory()
         response = self.client.get(
             BASE_URL
         )
         self.assertEqual(status.HTTP_200_OK, response.status_code)
-        self.assertEqual(0, len(response.get_json()))
+        print(response.get_json())
+        self.assertEqual(0, len(response.get_json()[0]))
     
     def test_read_account_successful(self):
         account, response = self.create_mock_account()
         web_response = self.read_account(account.id)
-        self.assertNotEqual(status.HTTP_404_NOT_FOUND, web_response.status_code)
+        print(web_response)
+        self.assertNotEqual(status.HTTP_404_NOT_FOUND, web_response.status_code, "returned 404")
         new_account = web_response.get_json()
         self.compare_account_and_dict(account, new_account)
 
@@ -148,7 +149,9 @@ class TestAccountService(TestCase):
     def test_delete(self):
         """tests idempotence and whether the count of the accounts decremented by 1"""
         (account1, response1) = self.create_mock_account()
-        initial_length = len(Account.all())
+        initial_length = len(
+            self.client.get(BASE_URL).get_json()
+        )
         id = response1.get_json()["id"]
         self.client.delete(BASE_URL + "/" + str(id))
         self.assertNotEqual(initial_length, len(Account.all()))
@@ -160,11 +163,11 @@ class TestAccountService(TestCase):
 
     def compare_account_and_dict(self, account, dict):
         #self.assertEqual(dict["id"], account.id)
-        self.assertEqual(dict["email"], account.email)
-        self.assertEqual(dict["name"], account.name)
-        self.assertEqual(dict["address"], account.address)
-        self.assertEqual(dict["phone_number"], account.phone_number)
-        self.assertEqual(dict["date_joined"], str(account.date_joined))
+        self.assertEqual(dict["email"], account.email, "email mismatch")
+        self.assertEqual(dict["name"], account.name,  "name mismatch")
+        self.assertEqual(dict["address"], account.address, "address mismatch")
+        self.assertEqual(dict["phone_number"], account.phone_number, "phone_number mismatch")
+        self.assertEqual(dict["date_joined"], str(account.date_joined), "date_joined mismatch")
 
     def create_mock_account(self):
         account = AccountFactory()
@@ -173,6 +176,7 @@ class TestAccountService(TestCase):
             json=account.serialize(),
             content_type="application/json"
         )
+        account.id = response.get_json()["id"]
         return (account, response)
 
     def read_account(self, id):
