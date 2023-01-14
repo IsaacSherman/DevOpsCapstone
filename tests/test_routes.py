@@ -88,12 +88,7 @@ class TestAccountService(TestCase):
 
     def test_create_account(self):
         """It should Create a new Account"""
-        account = AccountFactory()
-        response = self.client.post(
-            BASE_URL,
-            json=account.serialize(),
-            content_type="application/json"
-        )
+        account, response = self.create_mock_account()
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         # Make sure location header is set
@@ -102,11 +97,7 @@ class TestAccountService(TestCase):
 
         # Check the data is correct
         new_account = response.get_json()
-        self.assertEqual(new_account["name"], account.name)
-        self.assertEqual(new_account["email"], account.email)
-        self.assertEqual(new_account["address"], account.address)
-        self.assertEqual(new_account["phone_number"], account.phone_number)
-        self.assertEqual(new_account["date_joined"], str(account.date_joined))
+        self.compare_account_and_dict(account, new_account)
 
     def test_bad_request(self):
         """It should not Create an Account when sending the wrong data"""
@@ -125,10 +116,66 @@ class TestAccountService(TestCase):
 
     # ADD YOUR TEST CASES HERE ...
     def test_list_accounts(self):
-        """Accounts should not return 404, should return array of accounts (even empty array)"""
+        """List Accounts should not return 404, should return array of accounts (even empty array)"""
         account = AccountFactory()
         response = self.client.get(
             BASE_URL
         )
-        self.assertEqual(0, len(response.first))
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
+        self.assertEqual(0, len(response.get_json()))
+    
+    def test_read_account_successful(self):
+        account, response = self.create_mock_account()
+        web_response = self.read_account(account.id)
+        self.assertNotEqual(status.HTTP_404_NOT_FOUND, web_response.status_code)
+        new_account = web_response.get_json()
+        self.compare_account_and_dict(account, new_account)
+
+    def test_update_success(self):
+        """Update should find an account and change it in the database"""
+        #create account in db, change the account, update
+        (account1, response1) = self.create_mock_account()
+        account2 = AccountFactory()
+    
+        response2 = self.client.post(BASE_URL+"/"+str(response1.get_json()["id"]),
+         json = account2.serialize(), 
+         content_type = "application/json")
+        
+        self.assertNotEqual(status.HTTP_404_NOT_FOUND, response2.status_code)
+        account_json = response2.get_json()
+        self.compare_account_and_dict(account2, account_json)
+
+    def test_delete(self):
+        """tests idempotence and whether the count of the accounts decremented by 1"""
+        (account1, response1) = self.create_mock_account()
+        initial_length = len(Account.all())
+        id = response1.get_json()["id"]
+        self.client.delete(BASE_URL + "/" + str(id))
+        self.assertNotEqual(initial_length, len(Account.all()))
+        self.client.delete(BASE_URL + "/" + str(id))
+        self.assertEqual(initial_length-1, len(Account.all()))
+
+
+#Helpher methods go here:
+
+    def compare_account_and_dict(self, account, dict):
+        #self.assertEqual(dict["id"], account.id)
+        self.assertEqual(dict["email"], account.email)
+        self.assertEqual(dict["name"], account.name)
+        self.assertEqual(dict["address"], account.address)
+        self.assertEqual(dict["phone_number"], account.phone_number)
+        self.assertEqual(dict["date_joined"], str(account.date_joined))
+
+    def create_mock_account(self):
+        account = AccountFactory()
+        response = self.client.post(
+            BASE_URL,
+            json=account.serialize(),
+            content_type="application/json"
+        )
+        return (account, response)
+
+    def read_account(self, id):
+        return self.client.get(BASE_URL+"/"+str(id))
+        
         
