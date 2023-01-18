@@ -8,6 +8,9 @@ from flask import jsonify, request, make_response, abort, url_for   # noqa; F401
 from service.models import Account
 from service.common import status  # HTTP Status Codes
 from . import app  # Import Flask application
+import logging
+
+logger = logging.getLogger("flask.app")
 
 
 ############################################################
@@ -62,6 +65,12 @@ def create_accounts():
 ######################################################################
 
 # ... place you code here to LIST accounts ...
+@app.route("/accounts", methods=["GET"])
+def list_accounts():
+    """This lists all accounts, and should always return 200_OK"""
+    result = map(lambda x:x.serialize(), Account.all())
+    status_code = status.HTTP_200_OK
+    return make_response(jsonify(list(result), status_code))
 
 
 ######################################################################
@@ -69,22 +78,49 @@ def create_accounts():
 ######################################################################
 
 # ... place you code here to READ an account ...
+@app.route("/accounts/<account_id>", methods=["GET"])
+def read_account(account_id):
+    account = Account.find(account_id)
+    logger.log(1, "account id = " + str(account_id))
+    for acct in Account.all():
+        logger.log(1, acct.id)
+    if account is None:
+        status_code = status.HTTP_404_NOT_FOUND
+    else:
+        status_code = status.HTTP_200_OK
+    logger.log(1, jsonify(account.serialize()))
+    return make_response(jsonify(account.serialize()), status_code)
 
+    
 
 ######################################################################
 # UPDATE AN EXISTING ACCOUNT
+
 ######################################################################
 
 # ... place you code here to UPDATE an account ...
-
+@app.route("/accounts/<account_id>", methods=["POST"])
+def update_account(account_id):
+    app.logger.info("Request to update an Account")
+    check_content_type("application/json")
+    account = Account.find(account_id)
+    if account is None:
+        return make_response("", status.HTTP_404_NOT_FOUND)
+    account.deserialize(request.get_json())
+    account.update()
+    return make_response (jsonify(account.serialize(), status.HTTP_200_OK))
 
 ######################################################################
 # DELETE AN ACCOUNT
 ######################################################################
 
 # ... place you code here to DELETE an account ...
-
-
+@app.route("/accounts/<account_id>", methods=["DELETE"])
+def delete_account(account_id):
+    account = Account.find(account_id)
+    if account is not None: 
+        account.delete()
+    return make_response("", status.HTTP_204_NO_CONTENT)
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
 ######################################################################
