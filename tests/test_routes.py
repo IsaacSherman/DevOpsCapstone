@@ -161,6 +161,20 @@ class TestAccountService(TestCase):
         self.assertNotEqual(initial_length, len(Account.all()))
         self.client.delete(BASE_URL + "/" + str(id))
         self.assertEqual(initial_length-1, len(Account.all()))
+    
+    def test_account_not_found(self):
+        """Should not find an account"""
+        response = self.client.get(BASE_URL+ "/-1")
+        self.assertEqual(status.HTTP_404_NOT_FOUND, response.status_code)
+
+    def test_update_failure(self):
+        """Try to update a non-existant id"""
+        account, response= self.create_mock_account()
+        response = self.client.post(BASE_URL + "/-1", 
+                 json = account.serialize(), 
+         content_type = "application/json")
+
+        self.assertEqual(status.HTTP_404_NOT_FOUND, response.status_code)
 
 
 #Helpher methods go here:
@@ -187,3 +201,4 @@ class TestAccountService(TestCase):
         return self.client.get(BASE_URL+"/"+str(id))
         
         
+    

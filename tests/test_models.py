@@ -6,7 +6,8 @@ import logging
 import unittest
 import os
 from service import app
-from service.models import Account, DataValidationError, db
+from service.models import Account, DataValidationError, db, PersistentBase
+from datetime import date
 from tests.factories import AccountFactory
 
 DATABASE_URI = os.getenv(
@@ -175,3 +176,26 @@ class TestAccount(unittest.TestCase):
         """It should not Deserialize an account with a TypeError"""
         account = Account()
         self.assertRaises(DataValidationError, account.deserialize, [])
+
+    def test_persistent_base(self):
+        b = PersistentBase()
+        b.__init__()
+        self.assertEqual(b.id, None)
+
+    def test_invalid_date(self):
+        a = Account()
+        b = AccountFactory()
+        data = {}
+        data["name"] = ""
+        data["email"] = ""
+        data["address"] = ""
+        data["date_joined"] = None
+        data["phone_number"] = None
+        a.deserialize(data)
+        self.assertAlmostEqual(date.today(), a.date_joined)
+
+    def test_self_repr(self):
+        a = Account()
+        a.name = "1"
+        a.id = -1
+        self.assertEqual(f"<Account {1} id=[{-1}]>", a.__repr__())

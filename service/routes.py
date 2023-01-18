@@ -86,10 +86,13 @@ def read_account(account_id):
         logger.log(1, acct.id)
     if account is None:
         status_code = status.HTTP_404_NOT_FOUND
+        logger.log(1, "Account id " + str(account_id) + " Not found")
+        account = {}
     else:
         status_code = status.HTTP_200_OK
-    logger.log(1, jsonify(account.serialize()))
-    return make_response(jsonify(account.serialize()), status_code)
+        account = jsonify(account.serialize())
+        logger.log(1, account)
+    return make_response(account, status_code)
 
     
 
