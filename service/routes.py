@@ -64,11 +64,12 @@ def create_accounts():
 # LIST ALL ACCOUNTS
 ######################################################################
 
+
 # ... place you code here to LIST accounts ...
 @app.route("/accounts", methods=["GET"])
 def list_accounts():
     """This lists all accounts, and should always return 200_OK"""
-    result = map(lambda x:x.serialize(), Account.all())
+    result = map(lambda x: x.serialize(), Account.all())
     status_code = status.HTTP_200_OK
     return make_response(jsonify(list(result), status_code))
 
@@ -91,7 +92,6 @@ def read_account(account_id):
     logger.log(1, jsonify(account.serialize()))
     return make_response(jsonify(account.serialize()), status_code)
 
-    
 
 ######################################################################
 # UPDATE AN EXISTING ACCOUNT
@@ -108,17 +108,18 @@ def update_account(account_id):
         return make_response("", status.HTTP_404_NOT_FOUND)
     account.deserialize(request.get_json())
     account.update()
-    return make_response (jsonify(account.serialize(), status.HTTP_200_OK))
+    return make_response(jsonify(account.serialize(), status.HTTP_200_OK))
 
 ######################################################################
 # DELETE AN ACCOUNT
 ######################################################################
 
+
 # ... place you code here to DELETE an account ...
 @app.route("/accounts/<account_id>", methods=["DELETE"])
 def delete_account(account_id):
     account = Account.find(account_id)
-    if account is not None: 
+    if account is not None:
         account.delete()
     return make_response("", status.HTTP_204_NO_CONTENT)
 ######################################################################
