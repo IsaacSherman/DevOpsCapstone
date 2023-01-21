@@ -180,7 +180,7 @@ class TestAccountService(TestCase):
             self.assertEqual(response.headers.get(key), headers[key])
         
 
-    def test_security_headers(self):
+    def test_security_headers_2(self):
         """It should test the security headers"""
         response = self.client.get("/", environ_overrides=HTTPS_ENVIRON)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
