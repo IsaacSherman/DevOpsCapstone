@@ -12,12 +12,13 @@ from tests.factories import AccountFactory
 from service.common import status  # HTTP Status Codes
 from service.models import db, Account, init_db
 from service.routes import app
-
+from service import talisman
 DATABASE_URI = os.getenv(
     "DATABASE_URI", "postgresql://postgres:postgres@localhost:5432/postgres"
 )
 
 BASE_URL = "/accounts"
+HTTPS_ENVIRON = {'wsgi.url_scheme': 'https'}
 
 
 ######################################################################
@@ -34,6 +35,8 @@ class TestAccountService(TestCase):
         app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URI
         app.logger.setLevel(logging.CRITICAL)
         init_db(app)
+        talisman.force_https= False
+
 
     @classmethod
     def tearDownClass(cls):
@@ -162,6 +165,20 @@ class TestAccountService(TestCase):
         self.client.delete(BASE_URL + "/" + str(id))
         self.assertEqual(initial_length-1, len(Account.all()))
 
+    def test_security_headers(self):
+        """It should return security headers"""
+        headers = {
+            'X-Frame-Options': 'SAMEORIGIN',
+            'X-XSS-Protection': '1; mode=block',
+            'X-Content-Type-Options': 'nosniff',
+            'Content-Security-Policy': 'default-src \'self\'; object-src \'none\'',
+            'Referrer-Policy': 'strict-origin-when-cross-origin'
+        }
+        response = self.client.get("/", environ_overrides=HTTPS_ENVIRON)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        for key in headers.keys():
+            self.assertEqual(response.headers.get(key), headers[key])
+        
 
 #Helpher methods go here:
 
@@ -186,4 +203,4 @@ class TestAccountService(TestCase):
     def read_account(self, id):
         return self.client.get(BASE_URL+"/"+str(id))
         
-        
+    
