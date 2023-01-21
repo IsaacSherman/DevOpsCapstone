@@ -180,6 +180,13 @@ class TestAccountService(TestCase):
             self.assertEqual(response.headers.get(key), headers[key])
         
 
+    def test_security_headers(self):
+        """It should test the security headers"""
+        response = self.client.get("/", environ_overrides=HTTPS_ENVIRON)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.headers.get("Access-Control-Allow-Origin"),
+         "*")
+        
 #Helpher methods go here:
 
     def compare_account_and_dict(self, account, dict):
