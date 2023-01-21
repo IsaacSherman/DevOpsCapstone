@@ -186,7 +186,15 @@ class TestAccountService(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.headers.get("Access-Control-Allow-Origin"),
          "*")
-        
+    
+    def test_error_handlers(self):
+        """Should test the 404 and 405 error handlers"""
+        response = self.client.get("butts")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        response = self.client.delete(BASE_URL)
+        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
 #Helpher methods go here:
 
     def compare_account_and_dict(self, account, dict):
