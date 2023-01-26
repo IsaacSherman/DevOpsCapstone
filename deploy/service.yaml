@@ -12,6 +12,6 @@ spec:
     targetPort: 8080
   selector:
     app: accounts
-  type: NodePort
+  type: ClusterIP
 status:
   loadBalancer: {}
