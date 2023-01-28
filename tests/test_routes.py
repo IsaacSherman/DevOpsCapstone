@@ -35,8 +35,7 @@ class TestAccountService(TestCase):
         app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URI
         app.logger.setLevel(logging.CRITICAL)
         init_db(app)
-        talisman.force_https= False
-
+        talisman.force_https = False
 
     @classmethod
     def tearDownClass(cls):
@@ -126,7 +125,7 @@ class TestAccountService(TestCase):
         self.assertEqual(status.HTTP_200_OK, response.status_code)
         print(response.get_json())
         self.assertEqual(0, len(response.get_json()[0]))
-    
+
     def test_read_account_successful(self):
         account, response = self.create_mock_account()
         web_response = self.read_account(account.id)
@@ -137,14 +136,13 @@ class TestAccountService(TestCase):
 
     def test_update_success(self):
         """Update should find an account and change it in the database"""
-        #create account in db, change the account, update
+        # create account in db, change the account, update
         (account1, response1) = self.create_mock_account()
         account2 = AccountFactory()
-    
+
         response2 = self.client.post(BASE_URL+"/"+str(response1.get_json()["id"]),
-         json = account2.serialize(), 
-         content_type = "application/json")
-        
+                                     json=account2.serialize(), content_type="application/json")
+
         self.assertNotEqual(status.HTTP_404_NOT_FOUND, response2.status_code)
         account_json = response2.get_json()
         print(account_json)
@@ -178,15 +176,13 @@ class TestAccountService(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         for key in headers.keys():
             self.assertEqual(response.headers.get(key), headers[key])
-        
 
     def test_security_headers_2(self):
         """It should test the security headers"""
         response = self.client.get("/", environ_overrides=HTTPS_ENVIRON)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.headers.get("Access-Control-Allow-Origin"),
-         "*")
-    
+        self.assertEqual(response.headers.get("Access-Control-Allow-Origin"), "*")
+
     def test_error_handlers(self):
         """Should test the 404 and 405 error handlers"""
         response = self.client.get("butts")
@@ -194,11 +190,7 @@ class TestAccountService(TestCase):
         response = self.client.delete(BASE_URL)
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
-
-#Helpher methods go here:
-
     def compare_account_and_dict(self, account, dict):
-        #self.assertEqual(dict["id"], account.id)
         self.assertEqual(dict["email"], account.email, "email mismatch")
         self.assertEqual(dict["name"], account.name,  "name mismatch")
         self.assertEqual(dict["address"], account.address, "address mismatch")
@@ -217,5 +209,3 @@ class TestAccountService(TestCase):
 
     def read_account(self, id):
         return self.client.get(BASE_URL+"/"+str(id))
-        
-    
