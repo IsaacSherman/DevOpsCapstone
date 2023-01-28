@@ -194,9 +194,6 @@ class TestAccountService(TestCase):
 # Helper methods go here:
 
     def compare_account_and_dict(self, account, dict):
-        
-        # self.assertEqual(dict["id"], account.id)
-        
         self.assertEqual(dict["email"], account.email, "email mismatch")
         self.assertEqual(dict["name"], account.name,  "name mismatch")
         self.assertEqual(dict["address"], account.address, "address mismatch")
