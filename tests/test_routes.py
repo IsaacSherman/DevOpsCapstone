@@ -140,9 +140,7 @@ class TestAccountService(TestCase):
         (account1, response1) = self.create_mock_account()
         account2 = AccountFactory()
 
-        response2 = self.client.post(BASE_URL+"/"+str(response1.get_json()["id"]),
-                json=account2.serialize(),
-                content_type="application/json")
+        response2 = self.client.post(BASE_URL+"/"+str(response1.get_json()["id"]), json=account2.serialize(), content_type="application/json")
 
         self.assertNotEqual(status.HTTP_404_NOT_FOUND, response2.status_code)
         account_json = response2.get_json()
@@ -182,8 +180,7 @@ class TestAccountService(TestCase):
         """It should test the security headers"""
         response = self.client.get("/", environ_overrides=HTTPS_ENVIRON)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.headers.get("Access-Control-Allow-Origin"),
-                "*")
+        self.assertEqual(response.headers.get("Access-Control-Allow-Origin"),"*")
 
     def test_error_handlers(self):
         """Should test the 404 and 405 error handlers"""
@@ -194,6 +191,7 @@ class TestAccountService(TestCase):
 
 
 # Helper methods go here:
+
     def compare_account_and_dict(self, account, dict):
         # self.assertEqual(dict["id"], account.id)
         self.assertEqual(dict["email"], account.email, "email mismatch")
