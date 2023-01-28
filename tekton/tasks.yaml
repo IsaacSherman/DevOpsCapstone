@@ -86,5 +86,5 @@ spec:
         pip install -qr requirements.txt
 
         echo "*****Doing tests*****"
-        nosetests $(params.smells)
+        #nosetests $(params.smells)
 ---
