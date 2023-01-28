@@ -177,15 +177,14 @@ class TestAccountService(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         for key in headers.keys():
             self.assertEqual(response.headers.get(key), headers[key])
-        
 
     def test_security_headers_2(self):
         """It should test the security headers"""
         response = self.client.get("/", environ_overrides=HTTPS_ENVIRON)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.headers.get("Access-Control-Allow-Origin"),
-         "*")
-    
+            "*")
+
     def test_error_handlers(self):
         """Should test the 404 and 405 error handlers"""
         response = self.client.get("butts")
@@ -194,10 +193,10 @@ class TestAccountService(TestCase):
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
-#Helpher methods go here:
+# Helper methods go here:
 
     def compare_account_and_dict(self, account, dict):
-        #self.assertEqual(dict["id"], account.id)
+        # self.assertEqual(dict["id"], account.id)
         self.assertEqual(dict["email"], account.email, "email mismatch")
         self.assertEqual(dict["name"], account.name,  "name mismatch")
         self.assertEqual(dict["address"], account.address, "address mismatch")
@@ -216,5 +215,3 @@ class TestAccountService(TestCase):
 
     def read_account(self, id):
         return self.client.get(BASE_URL+"/"+str(id))
-        
-    
