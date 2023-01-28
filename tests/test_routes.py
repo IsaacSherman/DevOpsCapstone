@@ -35,8 +35,7 @@ class TestAccountService(TestCase):
         app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URI
         app.logger.setLevel(logging.CRITICAL)
         init_db(app)
-        talisman.force_https= False
-
+        talisman.force_https = False
 
     @classmethod
     def tearDownClass(cls):
@@ -126,7 +125,7 @@ class TestAccountService(TestCase):
         self.assertEqual(status.HTTP_200_OK, response.status_code)
         print(response.get_json())
         self.assertEqual(0, len(response.get_json()[0]))
-    
+
     def test_read_account_successful(self):
         account, response = self.create_mock_account()
         web_response = self.read_account(account.id)
@@ -137,14 +136,14 @@ class TestAccountService(TestCase):
 
     def test_update_success(self):
         """Update should find an account and change it in the database"""
-        #create account in db, change the account, update
+        # create account in db, change the account, update
         (account1, response1) = self.create_mock_account()
         account2 = AccountFactory()
-    
+
         response2 = self.client.post(BASE_URL+"/"+str(response1.get_json()["id"]),
-         json = account2.serialize(), 
-         content_type = "application/json")
-        
+            json = account2.serialize(), 
+            content_type = "application/json")
+
         self.assertNotEqual(status.HTTP_404_NOT_FOUND, response2.status_code)
         account_json = response2.get_json()
         print(account_json)
