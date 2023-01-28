@@ -190,9 +190,6 @@ class TestAccountService(TestCase):
         response = self.client.delete(BASE_URL)
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
-
-# Helper methods go here:
-
     def compare_account_and_dict(self, account, dict):
         self.assertEqual(dict["email"], account.email, "email mismatch")
         self.assertEqual(dict["name"], account.name,  "name mismatch")
