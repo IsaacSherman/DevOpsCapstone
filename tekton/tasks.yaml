@@ -49,4 +49,42 @@ spec:
           # Delete files and directories starting with .. plus any other character
           rm -rf "${WORKSPACE_SOURCE_PATH}"/..?*
         fi
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: nose
+spec:
+  description: This task tests the nose.
+  workspaces:
+    - name: source
+  params:
+    - name: smells
+      description: Arguments to pass to nose
+      type: string
+      default: "-v --with-spec --spec-color"
+    - name: database_uri
+      description: Database connection string
+      type: string
+      default: "sqlite:///test.db"
+  steps:
+    - name: nose-tests
+      image: python:3.9-slim
+      workingDir: $(workspaces.source.path)
+      env: 
+        - name: database_uri
+          value: $(params.database_uri)
+      securityContext:
+        runAsNonRoot: false
+        runAsUser: 0
+      script: |
+        #!/bin/bash
+        set -e
 
+        echo "*****Installing Dependencies*****"
+        python -m pip install --upgrade pip wheel
+        pip install -qr requirements.txt
+
+        echo "*****Doing tests*****"
+        nosetests $(params.smells)
+---
