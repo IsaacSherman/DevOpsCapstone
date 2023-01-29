@@ -1,7 +1,7 @@
 # Pin Werkzeug because it keeps breaking Flask!
 Werkzeug==2.1.2
 
-#Pinning SQLAlchemy because of a breaking new version
+#Pinning SQLAlchemy because of a breaking new version (Thanks Amen Kester!)
 SQLAlchemy==1.4.46
 
 # Runtime dependencies
